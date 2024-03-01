@@ -1,26 +1,29 @@
-const bibliotheque = [
-    { titre: "Le Petit Prince", auteur: "Antoine de Saint-Exupéry", annee: 1943 },
-    { titre: "Harry Potter à l'école des sorciers", auteur: "J.K. Rowling", annee: 1997 },
-    { titre: "1984", auteur: "George Orwell", annee: 1949 },
-];
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('ajouterLivreForm');
 
-function afficherBibliotheque() {
-    const bibliothequeElement = document.getElementById("bibliotheque");
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
 
-    bibliothequeElement.innerHTML = "";
+        const titre = document.getElementById('titre').value;
+        const auteur = document.getElementById('auteur').value;
+        const annee = document.getElementById('annee').value;
 
-   
-    bibliotheque.forEach(livre => {
-        const livreElement = document.createElement("div");
-        livreElement.classList.add("livre");
-        livreElement.innerHTML = `
-            <h2>${livre.titre}</h2>
-            <p>Auteur: ${livre.auteur}</p>
-            <p>Année de publication: ${livre.annee}</p>
-        `;
-        bibliothequeElement.appendChild(livreElement);
+        // Appel à l'API Google Images pour récupérer l'URL de l'image du livre
+        fetch(`https://www.googleapis.com/customsearch/v1?key=YOUR_API_KEY&cx=YOUR_CX&q=${titre}+${auteur}+${annee}+book+cover&searchType=image`)
+            .then(response => response.json())
+            .then(data => {
+                const imageUrl = data.items[0].link; // Récupérer l'URL de la première image de résultats
+                afficherImageLivre(imageUrl);
+            })
+            .catch(error => console.error('Erreur lors de la récupération de l\'image :', error));
     });
-}
 
+    function afficherImageLivre(imageUrl) {
+        const imageLivre = document.createElement('img');
+        imageLivre.src = imageUrl;
+        imageLivre.alt = 'Couverture du livre';
 
-window.onload = afficherBibliotheque;
+        const contenuBibliotheque = document.getElementById('contenuBibliotheque');
+        contenuBibliotheque.appendChild(imageLivre);
+    }
+});
